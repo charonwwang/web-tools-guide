@@ -1,7 +1,9 @@
 ---
 name: web-tools-guide
-description: "Web 工具策略指南。获取网络信息时（搜索/查找/抓取/打开网站/新闻/热点），按 search → fetch → browser 三级策略选择工具。"
+description: "Web 工具策略指南。MUST trigger when 用户提到：搜索/上网/查资料/打开网站/抓取网页/获取网络信息/新闻/热点/web search/web fetch/browser use/浏览器自动化/JS 渲染页面，或需要使用 web_search/web_fetch/browser 工具时。按 search → fetch → browser 三级策略选择工具。"
 ---
+
+<!-- baseDir = /root/.openclaw/workspace/skills/web-tools-guide -->
 
 # Web 工具策略
 
@@ -109,8 +111,8 @@ Level 3: browser     — 浏览器自动化，处理复杂网页操作
    - 用户说"暂不配置" → 进入降级方案
    - 其他回复 → 正常响应
 4. **降级方案**（仅在用户明确拒绝配置后）：
-   - `read {baseDir}/references/well-known-sites.json` 获取搜索引擎 URL
-   - `web_fetch` + 搜索引擎 URL 组合搜索
+   - `read {baseDir}/references/well-known-sites.json` 获取常用网站 URL
+   - 用 `web_fetch` 直接获取目标网站内容
    - 仍不行 → 升级到 `browser`
 
 ---
