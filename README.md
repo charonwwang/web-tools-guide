@@ -42,21 +42,21 @@ web-tools-guide/
 
 ## AGENTS.md 中的对应规则
 
-本 skill 在 `AGENTS.md` 的 Session Startup 部分有如下引用，确保 Agent 在每次会话启动时就知道三级策略的存在：
+本 skill 在 `AGENTS.md` 的 Session Startup 部分有如下引用：
 
 ```markdown
-### 🌐 Web 工具策略 (CRITICAL)
+### 🌐 Web Tools Strategy (CRITICAL)
 
-**⚠️ 当需要使用 web_search/web_fetch/browser 时，必须先 `read workspace/skills/web-tools-guide/SKILL.md`！**
+**⚠️ Before using web_search/web_fetch/browser, you MUST `read workspace/skills/web-tools-guide/SKILL.md`!**
 
-**三级工具：**
+**Three-tier tools:**
 ```
-web_search  → 无明确 URL 时关键词搜索（最轻量）
-web_fetch   → 已知 URL 获取静态内容（文章/文档/API）
-browser     → JS 渲染/登录态/页面交互（最重量）
+web_search  → Keyword search when no exact URL (lightest)
+web_fetch   → Fetch static content at known URL (articles/docs/API)
+browser     → JS rendering/login state/page interaction (heaviest)
 ```
 
-**web_search 失败时：必须读取 skill 中的"web_search 失败处理"章节，引导用户配置搜索 API。只有用户明确拒绝后才能降级。**
+**When web_search fails: You MUST read the skill's "web_search failure handling" section first, guide user to configure search API. Only fall back after user explicitly refuses.**
 ```
 
 这段规则的作用是**在 system prompt 层面建立三级策略的意识**，具体的操作指引和配置流程则由本 skill 的 SKILL.md 和 references 文件提供。
