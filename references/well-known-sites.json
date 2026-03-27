@@ -192,5 +192,56 @@
     "url": "https://baike.baidu.com/item/{query}",
     "description": "百度百科条目，{query} 替换为条目名",
     "category": "reference"
+  },
+
+  "cloud.tencent.login": {
+    "url": "https://cloud.tencent.com/login",
+    "description": "腾讯云登录页",
+    "category": "cloud_provider"
+  },
+  "cloud.tencent.console": {
+    "url": "https://cloud.tencent.com/",
+    "description": "腾讯云控制台首页",
+    "category": "cloud_provider"
+  },
+  "cloud.aliyun.login": {
+    "url": "https://account.aliyun.com/",
+    "description": "阿里云登录页",
+    "category": "cloud_provider"
+  },
+  "cloud.aliyun.console": {
+    "url": "https://www.aliyun.com/",
+    "description": "阿里云控制台首页",
+    "category": "cloud_provider"
+  },
+  "cloud.aws.login": {
+    "url": "https://signin.aws.amazon.com/",
+    "description": "AWS 登录页",
+    "category": "cloud_provider"
+  },
+  "cloud.aws.console": {
+    "url": "https://console.aws.amazon.com/",
+    "description": "AWS 控制台首页",
+    "category": "cloud_provider"
+  },
+  "cloud.huawei.login": {
+    "url": "https://auth.huaweicloud.com/",
+    "description": "华为云登录页",
+    "category": "cloud_provider"
+  },
+  "cloud.huawei.console": {
+    "url": "https://www.huaweicloud.com/",
+    "description": "华为云控制台首页",
+    "category": "cloud_provider"
+  },
+  "cloud.google.login": {
+    "url": "https://console.cloud.google.com/",
+    "description": "Google Cloud 登录页/控制台",
+    "category": "cloud_provider"
+  },
+  "cloud.azure.login": {
+    "url": "https://portal.azure.com/",
+    "description": "Microsoft Azure 登录页/控制台",
+    "category": "cloud_provider"
   }
 }
