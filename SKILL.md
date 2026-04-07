@@ -1,21 +1,26 @@
 ---
 name: web-tools-guide
-description: "Web 工具策略指南。MUST trigger when 用户提到：搜索/上网/查资料/打开网站/抓取网页/获取网络信息/新闻/热点/web search/web fetch/browser use/浏览器自动化/JS 渲染页面，或需要使用 web_search/web_fetch/browser 工具时。按 search → fetch → browser 三级策略选择工具。"
+description: "MANDATORY before calling web_search, web_fetch, browser, or opencli. Contains required error-handling procedures (web_search failure → must guide user to configure API), fallback chain (opencli CLI covers 70+ sites as structured fallback before browser), and site-specific login URLs. Without reading this skill, you WILL handle failures incorrectly and miss available tools. Trigger on: 搜索/上网/查资料/打开网站/抓取网页/新闻/热点/web search/fetch/browser/opencli."
 ---
 
 <!-- baseDir = /root/.openclaw/workspace/skills/web-tools-guide -->
 
 # Web 工具策略
 
-遵循 ReAct 范式，按**从轻到重、从通用到具体**选择工具：
+遵循 ReAct 范式。**四个工具不是层级关系，是分支决策**：
 
 ```
-Level 1: web_search  — 关键词搜索，快速获取信息入口
-Level 2: web_fetch   — 已知 URL，直接获取静态内容
-Level 3: browser     — 浏览器自动化，处理复杂网页操作
+┌─ 没有 URL，需要搜索 ──────→ web_search   （关键词搜索）
+│
+├─ 已知 URL，静态内容 ──────→ web_fetch    （直取页面）
+│
+├─ 以上失败 / 不适用 ──────→ opencli      （CLI 结构化访问，70+ 站点）
+│
+└─ 全都不行 ───────────────→ browser      （浏览器自动化，兜底）
 ```
 
-逐级升级，每次升级告知用户原因，不要静默切换。
+先按场景选 web_search 或 web_fetch；失败时先试 opencli，最后才上 browser。
+每次切换工具告知用户原因，不要静默降级。
 
 ---
 
@@ -23,38 +28,64 @@ Level 3: browser     — 浏览器自动化，处理复杂网页操作
 
 ```
 有明确 URL？
-├─ YES → 静态内容（文章/文档/API/RSS）？→ web_fetch
-│        需要 JS 渲染/登录/交互/截图？  → browser
+├─ YES → 静态内容（文章/文档/API/RSS）？
+│        ├─ YES → web_fetch
+│        │        失败（空白/403/CAPTCHA）？→ opencli → browser
+│        └─ NO（需要 JS/登录/交互/截图）→ opencli → browser
 └─ NO  → web_search
-         ├─ 成功 → 对结果 URL 按上述逻辑选 fetch/browser
-         └─ 失败 → 引导配置（见"web_search 失败处理"）
+         ├─ 成功 → 对结果 URL 按上述逻辑选 fetch/opencli/browser
+         ├─ 失败（API 错误）→ 引导配置（见"web_search 失败处理"）
+         └─ 无结果/不适用 → opencli → browser
 ```
 
 ---
 
-## Level 1: web_search
+## web_search
 
 **何时用**：没有明确 URL，需要搜索信息（新闻、热点、查资料、比较信息）。
 
 **怎么用**：直接调用 `web_search`，传入搜索关键词。
 
-**结果处理**：返回的 URL 按决策流程选 `web_fetch` 或 `browser` 深入获取。
+**结果处理**：返回的 URL 按决策流程选 `web_fetch`、`opencli` 或 `browser` 深入获取。
 
 **失败时**：见下方"web_search 失败处理"。
 
 ---
 
-## Level 2: web_fetch
+## web_fetch
 
 **何时用**：已知 URL，页面为静态内容——新闻文章、博客、技术文档、API 端点、RSS 源。
 
 **怎么用**：直接调用 `web_fetch`，传入 URL。
 
-**失败信号**：返回空白页、403、CAPTCHA、骨架 HTML → 说明需要 JS 渲染或登录态，告知用户后升级到 browser。
+**失败信号**：返回空白页、403、CAPTCHA、骨架 HTML → 尝试 `opencli`，仍不行再升级到 `browser`。
 
 ---
 
-## Level 3: browser
+## opencli（Fallback，优先于 browser）
+
+**何时用**：web_search / web_fetch 失败或不适用时，先试 opencli 再考虑 browser。覆盖 70+ 主流网站，秒级返回结构化数据。
+
+**首次使用前**：如果执行 `opencli` 提示 command not found，需要先运行安装脚本（幂等，可重复运行）：
+```bash
+bash {baseDir}/scripts/setup-opencli.sh
+```
+该脚本会自动完成：安装 opencli CLI → 编译 Browser Bridge 插件 → 重启浏览器加载插件。
+
+**渐进式发现（不需要记命令）**：
+```bash
+opencli --help                    # 有没有这个站？
+opencli <site> --help             # 这个站能做什么？
+opencli <site> <command> --help   # 这个命令怎么用？
+```
+
+**详细用法**：`read {baseDir}/references/opencli-guide.md`
+
+**失败时**：告知用户 opencli 失败原因，降级到 browser。
+
+---
+
+## browser（最后手段）
 
 这是最重量级的工具，也是当前问题最多的场景。以下是详细操作指引。
 
@@ -64,7 +95,7 @@ Level 3: browser     — 浏览器自动化，处理复杂网页操作
 - **需要登录态**：登录后才可见的内容、管理后台
 - **页面交互**：点击按钮、填写表单、翻页、滚动加载更多
 - **截图需求**：需要页面视觉信息
-- **web_fetch 失败的兜底**：前一级工具无法获取有效内容
+- **其他工具全部失败的兜底**
 
 ### 操作流程
 
